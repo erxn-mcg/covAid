@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://cdn.plot.ly/plotly-latest.min.js">
+        </script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@500&family=WindSong&display=swap');
+
+            h1 {
+                font-size: 50px;
+                float: left;
+                margin-left: 18px;
+                font-family: 'WindSong', sans-serif;
+                margin-top: 0px;
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            .nav {
+                text-decoration: none;
+                float: right;
+                margin-top: 20px;
+                margin-right: 15px;
+                font-size: 25px;
+                font-family: 'Dosis', sans-serif;
+                color: #2e63a8;
+            }
+
+            a:hover {
+                color: #addeff;
+            }
+
+            nav {
+                height: 70px;
+                width: 100%;
+                margin-bottom: 60px;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.07), 
+                0 2px 4px rgba(0,0,0,0.07), 
+                0 4px 8px rgba(0,0,0,0.07), 
+                0 8px 16px rgba(0,0,0,0.07),
+                0 16px 32px rgba(0,0,0,0.07), 
+                0 32px 64px rgba(0,0,0,0.07);
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <h1>flow</h1>
+            <a class="nav" href="bot.html">covAid bot </a>
+            <a class="nav" href="health.html">Data</a>
+            <a class="nav" href="chill.html">Chill</a>
+        </nav>
+        <body style="text-align: center;">
+            <p id=plottitle></p>
+            <div id="myDiv" style="margin: auto; width: 100%; max-width: 800px; height:1000px;"></div>
+            <script>
+             
+            </script>
+           
+          </body>
+    
+            <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+            <script>
+                list_country=['Switzerland', 'Austria', 'Italy', 'Germany', 'France', 'China', 'Iran', 'Japan','Korea, South' , 'United Kingdom','US', 'Spain']
+
+list_country_pop=['Switzerland', 'Austria', 'Italy', 'Germany', 'France', 'Iran', 'Japan','South Korea','United Kingdom' , 'Spain']
+
+MINCASE_TO_ALIGN_GRAPH = 100;
+
+show_default=['Switzerland',]
+
+showTicino = true;
+
+
+ticino=[1,1,1,1,1,1,2,6,7,10,29,45,58,68,84,128,180,211,265,291,330,422,511,834,918,939,1165,1211,1354,1401,1688,1727,1837,1962,2091,2195,2271,2377,2442,2508,2546,2599,2659]
+
+basels=[3, 3, 3, 3, 5, 5, 5, 10, 19, 24, 31, 35, 41, 51, 82, 113,134,144,165,182,222,272,299,358,376,414,466,505,534,573,609,621,628,691,718,748,771,794,803,813,834]
+
+affectedcases="https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
+
+deadcases='https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv';
+recovered='https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv';
+
+useforgraph=affectedcases;
+
+default_range_defined_by=''
+
+
+populationbycountry='https://cdn.anychart.com/samples/maps-projections/countries-by-population-with-august-projection/data.json';
+
+
+popdata=0;
+$.ajax({
+    url: populationbycountry,
+    dataType: 'json',
+
+    success: function(data) {
+        popdata=data
+    }
+  });
+
+
+populationmap={}
+for (country in popdata){
+  if(list_country.includes(popdata[country]['name'])){
+    populationmap[popdata[country]['name']]=popdata[country]['population']
+    
+  }
+}
+if(list_country.includes('China')){
+  populationmap['China']="58500000"
+}
+
+
+
+lombardiaAddress="https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni.json"
+lombardiaPopulation=10060574
+
+italydata=0;
+$.ajax({
+    url: lombardiaAddress,
+    dataType: 'json',
+    async: false,
+
+    success: function(data) {
+        italydata=data
+    }
+  });
+
+lombardyData={x:[],y:[],name:"Lombardy Italy", visible:true};
+startidx=0;
+casibefore=0;
+for (entry in italydata){
+  if(italydata[entry]["denominazione_regione"]=='Lombardia'){
+    casi=italydata[entry]["totale_casi"]
+      
+        if(casi >MINCASE_TO_ALIGN_GRAPH){
+          lombardyData['x'].push( startidx);
+          
+           if (startidx== 0){
+      lombardyData['y'].push(0)
+  } else {
+  lombardyData['y'].push((casi/casibefore -1) *100)
+  }
+          
+          startidx += 1;
+     
+    }
+    
+   casibefore=casi
+  }
+}
+
+ticinoData={x:[],y:[],name:"Ticino Switzerland", visible:true};
+startidx=0;
+for (idx in ticino){
+  if(ticino[idx] > MINCASE_TO_ALIGN_GRAPH){
+  ticinoData['x'].push(startidx)
+  if (startidx== 0){
+      ticinoData['y'].push(0)
+  } else {
+      ticinoData['y'].push((ticino[idx]/ticino[idx-1] -1) *100)
+  }
+  startidx+=1
+  }
+}
+
+
+baselstData={x:[],y:[],name:"BS Switzerland", visible:true};
+startidx=0;
+for (idx in basels){
+  if(basels[idx]> MINCASE_TO_ALIGN_GRAPH){
+  baselstData['x'].push(startidx)
+    
+  if (startidx== 0){
+      baselstData['y'].push(10)
+  } else {
+     baselstData['y'].push((basels[idx]/basels[idx-1] -1) *100)
+  }
+  startidx+=1
+  }
+}
+
+
+function makeplot() {
+  Plotly.d3.csv(useforgraph, function(data){ processData(data) } );
+
+};
+
+ymax=-1
+lastDate=-1
+
+function processData(allRows) {
+
+
+  var x = [], y = [], legend=[], standard_deviation = [], showTrace =[] ,ratio=[];
+
+  for (var i=0; i<allRows.length; i++) {
+    
+    row = allRows[i];
+    
+    if (list_country.includes(row['Country/Region'])){
+      if (row['Country/Region'] =='China' && row['Province/State'] != 'Hubei'){
+        continue; 
+        
+       } else if (row['Country/Region'] =='US' && row['Province/State'] != 'California'){
+        continue;
+      }
+      
+      else if (row['Country/Region'] =='United Kingdom'){
+        if (row['Province/State'] == ''){
+          row['Province/State']=''
+        } else {
+          continue;
+        }
+      }else if (row['Country/Region'] =='France'){
+        if (row['Province/State'] == ''){
+          row['Province/State']=''
+        } else {
+          continue;
+        }
+      }
+      
+      
+      
+      country=row['Country/Region']
+      province=row['Province/State']
+      
+      if (country == 'Republic of Korea'){
+        country="South Korea"
+      } else if (country == 'Iran (Islamic Republic of)'){
+        country = "Iran"
+      }
+      
+      legend.push(province+" "+country);
+      
+      if(show_default.includes(row['Country/Region'])){
+           showTrace.push('true');
+         } else {
+           showTrace.push('legendonly');
+         }
+      
+      xdistr=[]
+      ydistr=[]
+      ratiodistr=[]
+      console.log(row['Country/Region']);
+      
+      countrypopulation=1;
+      
+      
+      idx=0;
+      startidx=0;
+      previousrow=0
+      for(var key in row){
+        if(idx >=4 && row[key] >MINCASE_TO_ALIGN_GRAPH){
+          if(startidx ==0){
+            startidx = idx;
+          }
+          lastDate=key
+          xdistr.push( idx- startidx);
+          if(idx- startidx == 0){
+               ydistr.push(0)
+          } else {
+          ydistr.push((row[key]/previousrow -1) *100 );
+          }
+          ratiodistr.push(row[key] / (0.0+populationmap[country]))
+          
+          if(country == default_range_defined_by && row[key]> ymax){
+            ymax=row[key]
+          }
+        }
+        idx+=1;
+        previousrow=row[key]
+      }
+      x.push( xdistr );
+      y.push(ydistr );
+      ratio.push(ratiodistr);
+      
+    }
+  }
+  console.log( 'X',x, 'Y',y, 'SD',standard_deviation );
+  makePlotly( x, y, standard_deviation, legend, showTrace, ratio );
+}
+
+function makePlotly( x, y, standard_deviation, legend, showTrace, ratio ){
+  var plotDiv = document.getElementById("plot");
+  var traces =[]
+  
+  traces.push(baselstData);
+  
+  if (showTicino){
+    traces.push(ticinoData);
+  }
+  traces.push(lombardyData);
+  for (t in x){
+    trace ={
+    x: x[t], 
+    y: y[t],
+    name: legend[t],
+    visible:  showTrace[t],
+
+    }
+    traces.push(trace);
+  }
+
+ var layout = {showlegend: true,
+  legend: {"orientation": "h"},       
+   };
+    
+var paragraph = document.getElementById("plottitle");
+var text = document.createTextNode('');
+
+paragraph.appendChild(text);
+  
+  if (ymax >0){
+    layout['yaxis'] = {range: [0, ymax*3]};
+    }
+
+  Plotly.newPlot('myDiv', traces, layout,
+    {displayModeBar: true, responsive: true});
+};
+  makeplot();
+            </script>
+          
+          </body>
+          </html>

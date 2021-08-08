@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@500&family=WindSong&display=swap');
+
+            h1 {
+                font-size: 50px;
+                float: left;
+                margin-left: 18px;
+                font-family: 'WindSong', sans-serif;
+                margin-top: 0px;
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            .nav {
+                text-decoration: none;
+                float: right;
+                margin-top: 20px;
+                margin-right: 15px;
+                font-size: 25px;
+                font-family: 'Dosis', sans-serif;
+                color: #2e63a8;
+            }
+
+            a:hover {
+                color: #addeff;
+            }
+
+            nav {
+                height: 70px;
+                width: 100%;
+                margin-bottom: 60px;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.07), 
+                0 2px 4px rgba(0,0,0,0.07), 
+                0 4px 8px rgba(0,0,0,0.07), 
+                0 8px 16px rgba(0,0,0,0.07),
+                0 16px 32px rgba(0,0,0,0.07), 
+                0 32px 64px rgba(0,0,0,0.07);
+            }
+
+
+            body {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: black;
+                background-color: #ffffff;
+                background-size: cover;
+                font-family: 'Dosis', sans-serif;
+            }
+
+
+            .input {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 40px;
+            }
+
+            .input label {
+                text-align: center;
+                font-size: 18px;
+                margin-bottom: 8px;
+            }
+
+            .input select {
+                border: none;
+                border-radius: 8px;
+                min-width: 300px;
+                font-size: 16px;
+                padding: 8px 4px;
+                background-color: #57a8dd;
+                color: #fff;
+                text-decoration: none;
+                border: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                -ms-appearance: none;
+            }
+
+            .input select:focus {
+                outline: none;
+            }
+
+            .circle-wrap {
+                 display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                margin-bottom: 40px;
+            }
+
+            .circle-outline {
+                width: 300px;
+                height: 300px;
+                border-radius: 50%;
+                background-color: transparent;
+                border: 15px solid #d1d1d1;
+            }
+
+            .circle-progress {
+                width: 50px;
+                height: 50px;
+                position: absolute;
+                background-color: #addeff;
+                border-radius: 50%;
+                transition: 4s ease all;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+
+            .circle-grow {
+                transform: scale(5.3);
+            }
+
+            .breaths {
+                text-align: center;
+                margin-bottom: 24px;
+                font-size: 24px;
+            }
+
+            .instructions {
+                text-align: center;
+                margin-bottom: 32px;
+            }
+
+            button {
+                padding: 8px 20px;
+                border-radius: 8px;
+                background-color: #57a8dd;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                transition: 0.3s ease all;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            }
+
+            button:hover {
+                background-color: #addeff;
+                color: #fff;
+            }
+
+            .button-inactive {
+                pointer-events: none;
+                background-color: #999595;
+            }
+
+        </style>
+    </head>
+    <body>
+        <nav>
+            <h1>flow</h1>
+            <a class="nav" href="bot.html">covAid bot </a>
+            <a class="nav" href="health.html">Data</a>
+            <a class="nav" href="chill.html">Chill</a>
+        </nav>
+        <div class="input">
+            <label>Select Breaths <i class="fa fa-chevron-circle-down"></i></label>
+            <select class="breath-input">
+              <option value="3">3 Breaths</option>
+              <option value="5">5 Breaths</option>
+              <option value="7">7 Breaths</option>
+            </select>
+          </div>
+          <div class="circle-wrap">
+            <div class="circle-outline"></div>
+            <div class="circle-progress"></div>
+          </div>
+          <p class="breaths">Breaths remaining: <span class="breaths-text">3</span></p>
+          <p class="instructions">Ready to start your breathing?</p>
+          <button class="start">Start</button>
+          <script>
+              const circleProgress = document.querySelector(".circle-progress");
+const numberOfBreaths = document.querySelector(".breath-input");
+const start = document.querySelector(".start");
+const instructions = document.querySelector(".instructions");
+const breathsText = document.querySelector(".breaths-text");
+let breathsLeft = 3;
+
+numberOfBreaths.addEventListener("change", () => {
+  breathsLeft = numberOfBreaths.value;
+  breathsText.innerText = breathsLeft;
+});
+
+const growCircle = () => {
+  circleProgress.classList.add("circle-grow");
+  setTimeout(() => {
+    circleProgress.classList.remove("circle-grow");
+  }, 8000);
+};
+
+const breathTextUpdate = () => {
+  breathsLeft--;
+  breathsText.innerText = breathsLeft;
+  instructions.innerText = "Breath in";
+  setTimeout(() => {
+    instructions.innerText = "Hold Breath";
+    setTimeout(() => {
+      instructions.innerText = "Exhale Breath Slowly";
+    }, 4000);
+  }, 4000);
+};
+
+const breathingApp = () => {
+  const breathingAnimtaion = setInterval(() => {
+    if (breathsLeft === 0) {
+      clearInterval(breathingAnimtaion);
+      instructions.innerText = "Breathing session completed. Click 'Begin' to start another session!";
+      start.classList.remove("button-inactive");
+      breathsLeft = numberOfBreaths.value;
+      breathsText.innerText = breathsLeft;
+      return;
+    }
+    growCircle();
+    breathTextUpdate();
+  }, 12000);
+};
+
+start.addEventListener("click", () => {
+  start.classList.add("button-inactive");
+  instructions.innerText = "Get relaxed, and ready to begin breathing";
+  setTimeout(() => {
+    instructions.innerText = "Breathing is about to begin...";
+    setTimeout(() => {
+      breathingApp();
+      growCircle();
+      breathTextUpdate();
+    }, 2000);
+  }, 2000);
+});
+          </script>
+    </body>
+</html>
